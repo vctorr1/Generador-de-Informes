@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:behaviors="clr-namespace:PrivilegedAuditSuite.App.Behaviors"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Privileged Identity Audit Console"
@@ -87,7 +88,9 @@
                 <ScrollViewer Margin="0,20,0,0"
                               VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
-                              CanContentScroll="True">
+                              CanContentScroll="False"
+                              behaviors:ScrollViewerBehavior.UseGentleMouseWheel="True"
+                              behaviors:ScrollViewerBehavior.MouseWheelStep="32">
                     <StackPanel>
                     <Border Style="{StaticResource CardStyle}">
                         <Grid>

@@ -115,6 +115,7 @@ public sealed class CyberArkErrorClassifier
         normalized = Regex.Replace(normalized, @"\b\d{1,3}(?:\.\d{1,3}){3}\b", "<ip>", RegexOptions.CultureInvariant);
         normalized = Regex.Replace(normalized, @"\b[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,}\b", "<mail>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         normalized = Regex.Replace(normalized, @"\b[a-z0-9._-]+\\[a-z0-9$._-]+\b", "<account>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        normalized = Regex.Replace(normalized, @"\b(user|account|for user|for account)\s+[a-z0-9$._-]+\b", match => $"{match.Groups[1].Value} <account>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         normalized = Regex.Replace(normalized, @"(?<![a-z])[a-z]:\\[^\s,;]+", "<path>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         normalized = Regex.Replace(normalized, @"\\\\[^\s,;]+", "<path>", RegexOptions.CultureInvariant);
         normalized = Regex.Replace(normalized, @"\b[a-z0-9._-]+\.(?:local|corp|lan|int|com|net|org|es)\b", "<host>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
