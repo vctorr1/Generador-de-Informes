@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="PrivilegedAuditSuite.App/PrivilegedAuditSuite.App.csproj" />
+  <Project Path="PrivilegedAuditSuite.Application/PrivilegedAuditSuite.Application.csproj" />
+  <Project Path="PrivilegedAuditSuite.Domain/PrivilegedAuditSuite.Domain.csproj" />
+  <Project Path="PrivilegedAuditSuite.Headless/PrivilegedAuditSuite.Headless.csproj" />
+  <Project Path="PrivilegedAuditSuite.Infrastructure/PrivilegedAuditSuite.Infrastructure.csproj" />
+  <Project Path="PrivilegedAuditSuite.Tests/PrivilegedAuditSuite.Tests.csproj" />
+</Solution>

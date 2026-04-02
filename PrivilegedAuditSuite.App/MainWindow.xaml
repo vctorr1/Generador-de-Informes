@@ -1,0 +1,584 @@
+<Window x:Class="PrivilegedAuditSuite.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Privileged Identity Audit Console"
+        Width="1440"
+        Height="920"
+        MinWidth="1200"
+        MinHeight="760"
+        Background="#F3F6FB">
+    <Window.Resources>
+        <SolidColorBrush x:Key="CardBrush" Color="#FFFFFFFF" />
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#0B6A88" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#D97B29" />
+        <SolidColorBrush x:Key="BorderBrush" Color="#D7E0EC" />
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="Padding" Value="18" />
+            <Setter Property="Margin" Value="0,0,0,16" />
+        </Style>
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="16,10" />
+            <Setter Property="Margin" Value="0,0,12,0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+        </Style>
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#334155" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+    </Window.Resources>
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="#0F172A"
+                CornerRadius="24"
+                Padding="28"
+                Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock FontSize="32"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               Text="Privileged Identity Audit Console" />
+                    <TextBlock Margin="0,8,0,0"
+                               Foreground="#CBD5E1"
+                               FontSize="15"
+                               Text="Windows dashboard for CyberArk CPM audit, Entra reconciliation and secure scheduled execution." />
+                </StackPanel>
+                <Border Grid.Column="1"
+                        Background="#123552"
+                        CornerRadius="20"
+                        Padding="18,12"
+                        VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="Execution State" Foreground="#9CCFE0" FontSize="12" />
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" Width="320" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1"
+                    Background="Transparent"
+                    BorderThickness="0">
+            <TabItem Header="CyberArk Audit">
+                <ScrollViewer Margin="0,20,0,0"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="True">
+                    <StackPanel>
+                    <Border Style="{StaticResource CardStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.6*" />
+                                <ColumnDefinition Width="1.6*" />
+                                <ColumnDefinition Width="1.1*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,18,0">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Source" />
+                                <TextBlock Text="{Binding CyberArk.SourceDescription}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Margin="0,8,0,0" Foreground="#64748B" Text="{Binding CyberArk.ManualFilePath}" TextWrapping="Wrap" />
+                                <TextBlock Margin="0,12,0,0" Style="{StaticResource FieldLabelStyle}" Text="PVWA Search" />
+                                <TextBox Text="{Binding CyberArk.SearchText, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Page Size" />
+                                <TextBox Text="{Binding CyberArk.PageSize, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,18,0">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Selected Scope Summary" />
+                                <TextBlock Text="{Binding CyberArk.SelectionSummary}" TextWrapping="Wrap" />
+                                <TextBlock Margin="0,12,0,0" Style="{StaticResource FieldLabelStyle}" Text="Static Allowlist Rules" />
+                                <TextBox Text="{Binding Settings.PlatformAllowList, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+                                <TextBox Text="{Binding Settings.SafeAllowList, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Margin="0,10,0,0"
+                                           Foreground="#64748B"
+                                           Text="These text rules are applied before the visual platform/safe selection."
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Run Actions" />
+                                <Button Style="{StaticResource PrimaryButtonStyle}"
+                                        Command="{Binding CyberArk.ImportAccountsFileCommand}"
+                                        Content="Load Accounts File" />
+                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding CyberArk.SyncNowCommand}"
+                                        Content="Sync From API" />
+                                <Button Style="{StaticResource PrimaryButtonStyle}"
+                                        Command="{Binding CyberArk.RunAuditCommand}"
+                                        Content="Run Audit" />
+                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding CyberArk.ExportErrorSummaryCommand}"
+                                        Content="Export Error Summary" />
+                                <TextBlock Margin="0,18,0,0"
+                                           Foreground="#475569"
+                                           Text="Manual mode accepts CSV/XLSX exports from CyberArk accounts. Load the source, choose platforms, safes and error order, then run the audit and export the final CSV/XLSX summary."
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="1.1*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="14"
+                                    Margin="0,0,12,0">
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Top">
+                                        <TextBlock FontSize="18" FontWeight="SemiBold" Text="Platforms To Include" />
+                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,12">
+                                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                                                    Command="{Binding CyberArk.SelectAllPlatformsCommand}"
+                                                    Content="Select All" />
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{Binding CyberArk.ClearPlatformSelectionCommand}"
+                                                    Content="Clear" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="160" CanContentScroll="True">
+                                        <ItemsControl ItemsSource="{Binding CyberArk.AvailablePlatforms}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="{Binding DisplayName}"
+                                                              IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                              Margin="0,0,0,6" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </DockPanel>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="14"
+                                    Margin="12,0,0,0">
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Top">
+                                        <TextBlock FontSize="18" FontWeight="SemiBold" Text="Safes To Include" />
+                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,12">
+                                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                                                    Command="{Binding CyberArk.SelectAllSafesCommand}"
+                                                    Content="Select All" />
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{Binding CyberArk.ClearSafeSelectionCommand}"
+                                                    Content="Clear" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="160" CanContentScroll="True">
+                                        <ItemsControl ItemsSource="{Binding CyberArk.AvailableSafes}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="{Binding DisplayName}"
+                                                              IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                              Margin="0,0,0,6" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </DockPanel>
+                            </Border>
+                            <Border Grid.Column="2"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="14"
+                                    Margin="12,0,0,0">
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Top">
+                                        <TextBlock FontSize="18" FontWeight="SemiBold" Text="Errors In Final Output" />
+                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,12">
+                                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                                                    Command="{Binding CyberArk.SelectAllErrorCategoriesCommand}"
+                                                    Content="Select All" />
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{Binding CyberArk.ClearErrorCategorySelectionCommand}"
+                                                    Content="Clear" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ListBox Grid.Column="0"
+                                                 ItemsSource="{Binding CyberArk.AvailableErrorCategories}"
+                                                 SelectedItem="{Binding CyberArk.SelectedErrorCategory, Mode=TwoWay}"
+                                                 BorderThickness="0"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                 MaxHeight="170">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0,0,0,6">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox Content="{Binding DisplayName}"
+                                                                  IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                  VerticalAlignment="Center" />
+                                                        <TextBlock Grid.Column="1"
+                                                                   Margin="10,0,0,0"
+                                                                   VerticalAlignment="Center"
+                                                                   Foreground="#64748B"
+                                                                   Text="{Binding Count}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                                                    Width="52"
+                                                    Margin="0,0,0,8"
+                                                    Command="{Binding CyberArk.MoveErrorCategoryUpCommand}"
+                                                    Content="Up" />
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Width="52"
+                                                    Margin="0"
+                                                    Command="{Binding CyberArk.MoveErrorCategoryDownCommand}"
+                                                    Content="Down" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DockPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3.3*" />
+                            <ColumnDefinition Width="1.3*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,18,16">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top"
+                                           Margin="0,0,0,12"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Text="Filtered CyberArk Accounts" />
+                                <DataGrid ItemsSource="{Binding CyberArk.Accounts}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          Height="420"
+                                          HeadersVisibility="Column"
+                                          EnableRowVirtualization="True"
+                                          EnableColumnVirtualization="True"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          ScrollViewer.CanContentScroll="True">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="User" Binding="{Binding UserName}" Width="*" />
+                                        <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="*" />
+                                        <DataGridTextColumn Header="Platform" Binding="{Binding PlatformId}" Width="*" />
+                                        <DataGridTextColumn Header="Safe" Binding="{Binding SafeName}" Width="*" />
+                                        <DataGridCheckBoxColumn Header="CPM Disabled" Binding="{Binding IsCpmDisabled}" Width="110" />
+                                        <DataGridTextColumn Header="Last CPM Error" Binding="{Binding LastCpmError}" Width="2*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top"
+                                           Margin="0,0,0,12"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Text="Error Summary" />
+                                <DataGrid ItemsSource="{Binding CyberArk.ErrorSummary}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          Height="420"
+                                          EnableRowVirtualization="True"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Category" Binding="{Binding Label}" Width="*" />
+                                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="90" />
+                                        <DataGridTextColumn Header="Sample" Binding="{Binding SampleMessage}" Width="2*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Identity Reconciliation">
+                <Grid Margin="0,20,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Border Style="{StaticResource CardStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.7*" />
+                                <ColumnDefinition Width="1.7*" />
+                                <ColumnDefinition Width="1.5*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,18,0">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Entra Source" />
+                                <TextBlock Text="{Binding Identity.EntraSourceDescription}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Foreground="#64748B" Text="{Binding Identity.ManualEntraFilePath}" TextWrapping="Wrap" />
+                                <TextBlock Margin="0,12,0,0" Style="{StaticResource FieldLabelStyle}" Text="Group Mapping Rules" />
+                                <TextBox Text="{Binding Settings.GroupMappings, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Margin="0,10,0,0"
+                                           Foreground="#64748B"
+                                           Text="Format: EntraGroup=CyberArkGroup"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,18,0">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="CyberArk Identity Source" />
+                                <TextBlock Text="{Binding Identity.CyberArkIdentitySourceDescription}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Foreground="#64748B" Text="{Binding Identity.ManualCyberArkIdentityFilePath}" TextWrapping="Wrap" />
+                                <TextBlock Margin="0,12,0,0" Style="{StaticResource FieldLabelStyle}" Text="Options" />
+                                <CheckBox Content="Ignore disabled Entra users"
+                                          IsChecked="{Binding Settings.IgnoreDisabledEntraUsers}" />
+                                <TextBlock Margin="0,10,0,0"
+                                           Foreground="#475569"
+                                           Text="{Binding Identity.SummaryText}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Run Actions" />
+                                <Button Style="{StaticResource PrimaryButtonStyle}"
+                                        Command="{Binding Identity.ImportEntraFileCommand}"
+                                        Content="Load Entra File" />
+                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding Identity.ImportCyberArkIdentityFileCommand}"
+                                        Content="Load CyberArk Identity File" />
+                                <Button Style="{StaticResource PrimaryButtonStyle}"
+                                        Command="{Binding Identity.LoadEntraFromApiCommand}"
+                                        Content="Load Entra From API" />
+                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding Identity.RunReconciliationCommand}"
+                                        Content="Run Reconciliation" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+                        <TextBlock Text="Manual reconciliation accepts CSV/XLSX exports from Entra ID and CyberArk Identity. If no CyberArk Identity file is loaded, the module falls back to the currently selected CyberArk Audit accounts."
+                                   TextWrapping="Wrap"
+                                   Foreground="#475569" />
+                    </Border>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.1*" />
+                            <ColumnDefinition Width="1.1*" />
+                            <ColumnDefinition Width="1.6*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,18,16">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top"
+                                           Margin="0,0,0,12"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Text="Entra Users" />
+                                <DataGrid ItemsSource="{Binding Identity.EntraUsers}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          EnableRowVirtualization="True"
+                                          EnableColumnVirtualization="True"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          ScrollViewer.CanContentScroll="True">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="UPN" Binding="{Binding UserPrincipalName}" Width="*" />
+                                        <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="*" />
+                                        <DataGridTextColumn Header="Mail" Binding="{Binding Mail}" Width="*" />
+                                        <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding AccountEnabled}" Width="80" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="0,0,18,16">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top"
+                                           Margin="0,0,0,12"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Text="CyberArk Identity / Audit Users" />
+                                <DataGrid ItemsSource="{Binding Identity.CyberArkIdentityUsers}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          EnableRowVirtualization="True"
+                                          EnableColumnVirtualization="True"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          ScrollViewer.CanContentScroll="True">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="User" Binding="{Binding UserName}" Width="*" />
+                                        <DataGridTextColumn Header="Display" Binding="{Binding AccountName}" Width="*" />
+                                        <DataGridTextColumn Header="Source" Binding="{Binding Address}" Width="*" />
+                                        <DataGridTextColumn Header="Groups" Binding="{Binding GroupNames.Count}" Width="80" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </Border>
+                        <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top"
+                                           Margin="0,0,0,12"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Text="Discrepancies" />
+                                <DataGrid ItemsSource="{Binding Identity.Discrepancies}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          EnableRowVirtualization="True"
+                                          EnableColumnVirtualization="True"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          ScrollViewer.CanContentScroll="True">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="160" />
+                                        <DataGridTextColumn Header="Identity" Binding="{Binding Identity}" Width="*" />
+                                        <DataGridTextColumn Header="Related" Binding="{Binding RelatedIdentity}" Width="*" />
+                                        <DataGridTextColumn Header="Details" Binding="{Binding Details}" Width="2*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Settings &amp; Logs">
+                <ScrollViewer Margin="0,20,0,0" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1.3*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <Border Style="{StaticResource CardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,18,0">
+                                        <TextBlock FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" Text="CyberArk Connection" />
+                                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="PVWA Base URL" />
+                                        <TextBox Text="{Binding Settings.CyberArkBaseUrl, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Authentication Type" />
+                                        <ComboBox ItemsSource="{Binding Settings.CyberArkAuthenticationTypes}"
+                                                  SelectedItem="{Binding Settings.CyberArkAuthenticationType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  Margin="0,0,0,12" />
+                                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Username" />
+                                        <TextBox Text="{Binding Settings.CyberArkUsername, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Password (encrypted on save)" />
+                                        <TextBox Text="{Binding Settings.CyberArkPassword, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" Text="Entra ID / Excel" />
+                                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Tenant ID" />
+                                        <TextBox Text="{Binding Settings.EntraTenantId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Client ID" />
+                                        <TextBox Text="{Binding Settings.EntraClientId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Client Secret (encrypted on save)" />
+                                        <TextBox Text="{Binding Settings.EntraClientSecret, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="OneDrive Workbook URL" />
+                                        <TextBox Text="{Binding Settings.OneDriveWorkbookUrl, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Worksheet / Target Column" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBox Width="180" Margin="0,0,12,0" Text="{Binding Settings.WorksheetName, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox Width="80" Text="{Binding Settings.TargetColumn, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" Text="Encrypted Configuration" />
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Configuration File Path" />
+                                    <TextBox Text="{Binding Settings.ConfigurationFilePath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Style="{StaticResource PrimaryButtonStyle}" Command="{Binding Settings.SaveConfigurationCommand}" Content="Save Secure Config" />
+                                        <Button Background="{StaticResource AccentBrush}"
+                                                Foreground="White"
+                                                Padding="16,10"
+                                                BorderThickness="0"
+                                                Command="{Binding Settings.LoadConfigurationCommand}"
+                                                Content="Load Secure Config" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="18,0,0,16">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top"
+                                           Margin="0,0,0,12"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Text="Execution Logs" />
+                                <ListBox ItemsSource="{Binding Logs}" />
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <Border Grid.Row="2"
+                Background="White"
+                CornerRadius="18"
+                Padding="14"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Margin="0,18,0,0">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           Foreground="#0F172A"
+                           Text="{Binding StatusMessage}" />
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Margin="0,0,12,0"
+                               VerticalAlignment="Center"
+                               Foreground="#475569"
+                               Text="{Binding IsBusy, StringFormat=Busy: {0}}" />
+                    <ProgressBar Width="260"
+                                 Height="14"
+                                 Maximum="100"
+                                 Value="{Binding ProgressValue, Mode=OneWay}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

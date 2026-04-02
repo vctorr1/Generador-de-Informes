@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\PrivilegedAuditSuite.Application\PrivilegedAuditSuite.Application.csproj" />
+    <ProjectReference Include="..\PrivilegedAuditSuite.Infrastructure\PrivilegedAuditSuite.Infrastructure.csproj" />
+    <ProjectReference Include="..\PrivilegedAuditSuite.Domain\PrivilegedAuditSuite.Domain.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+</Project>
