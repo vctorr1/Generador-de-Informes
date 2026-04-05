@@ -10,6 +10,7 @@ public sealed class CyberArkAccountFilter
         var platformBlock = CreateSet(filterOptions.PlatformBlockList);
         var safeAllow = CreateSet(filterOptions.SafeAllowList);
         var safeBlock = CreateSet(filterOptions.SafeBlockList);
+        var excludedServers = CreateSet(filterOptions.ExcludedServers);
 
         return accounts
             .Where(account => !filterOptions.OnlyCpmDisabled || account.IsCpmDisabled)
@@ -17,6 +18,7 @@ public sealed class CyberArkAccountFilter
             .Where(account => !platformBlock.Contains(Normalize(account.PlatformId)))
             .Where(account => safeAllow.Count == 0 || safeAllow.Contains(Normalize(account.SafeName)))
             .Where(account => !safeBlock.Contains(Normalize(account.SafeName)))
+            .Where(account => !excludedServers.Contains(Normalize(account.Address)))
             .ToList();
     }
 

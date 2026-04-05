@@ -45,4 +45,5 @@ public sealed record CyberArkFilterOptions
     public IReadOnlyCollection<string> PlatformBlockList { get; init; } = Array.Empty<string>();
     public IReadOnlyCollection<string> SafeAllowList { get; init; } = Array.Empty<string>();
     public IReadOnlyCollection<string> SafeBlockList { get; init; } = Array.Empty<string>();
+    public IReadOnlyCollection<string> ExcludedServers { get; init; } = Array.Empty<string>();
 }

@@ -30,10 +30,11 @@ public sealed class AppBootstrapper
         IFilePickerService filePickerService = new WindowsFilePickerService();
         var classifier = new CyberArkErrorClassifier();
         var filter = new CyberArkAccountFilter();
+        var serverExclusionParser = new ServerExclusionParser();
         var reconciliationService = new IdentityReconciliationService();
 
         var settingsViewModel = new SettingsViewModel(configurationStore);
-        var cyberArkViewModel = new CyberArkAuditViewModel(cyberArkApiService, manualReportImportService, errorSummaryExportService, filePickerService, classifier, filter, settingsViewModel);
+        var cyberArkViewModel = new CyberArkAuditViewModel(cyberArkApiService, manualReportImportService, errorSummaryExportService, filePickerService, classifier, filter, serverExclusionParser, settingsViewModel);
         var identityViewModel = new IdentityReconciliationViewModel(entraIdService, manualReportImportService, filePickerService, reconciliationService, settingsViewModel, cyberArkViewModel);
         var mainViewModel = new MainViewModel(settingsViewModel, cyberArkViewModel, identityViewModel);
 

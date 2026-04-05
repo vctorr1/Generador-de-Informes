@@ -27,6 +27,7 @@ public sealed class SettingsViewModel : ObservableObject
     private string _platformBlockList = string.Empty;
     private string _safeAllowList = string.Empty;
     private string _safeBlockList = string.Empty;
+    private string _excludedServers = string.Empty;
     private string _groupMappings = string.Empty;
     private bool _ignoreDisabledEntraUsers = true;
 
@@ -135,6 +136,12 @@ public sealed class SettingsViewModel : ObservableObject
         set => SetProperty(ref _safeBlockList, value);
     }
 
+    public string ExcludedServers
+    {
+        get => _excludedServers;
+        set => SetProperty(ref _excludedServers, value);
+    }
+
     public string GroupMappings
     {
         get => _groupMappings;
@@ -177,6 +184,7 @@ public sealed class SettingsViewModel : ObservableObject
             PlatformBlockList = SplitValues(PlatformBlockList),
             SafeAllowList = SplitValues(SafeAllowList),
             SafeBlockList = SplitValues(SafeBlockList),
+            ExcludedServers = SplitValues(ExcludedServers),
         };
     }
 
@@ -243,6 +251,7 @@ public sealed class SettingsViewModel : ObservableObject
         PlatformBlockList = string.Join(", ", configuration.AuditFilters.PlatformBlockList);
         SafeAllowList = string.Join(", ", configuration.AuditFilters.SafeAllowList);
         SafeBlockList = string.Join(", ", configuration.AuditFilters.SafeBlockList);
+        ExcludedServers = string.Join(Environment.NewLine, configuration.AuditFilters.ExcludedServers);
         IgnoreDisabledEntraUsers = configuration.IdentityComparison.IgnoreDisabledEntraUsers;
         GroupMappings = string.Join(", ", configuration.IdentityComparison.GroupMappings.Select(item => $"{item.Key}={item.Value}"));
 

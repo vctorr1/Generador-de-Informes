@@ -13,6 +13,7 @@ public sealed class CyberArkAuditViewModel : ObservableObject
 {
     private const string InputFileFilter = "Supported files|*.csv;*.xlsx;*.xlsm|CSV files|*.csv|Excel files|*.xlsx;*.xlsm";
     private const string OutputFileFilter = "Excel workbook|*.xlsx|CSV file|*.csv";
+    private const string ServerFilterFileFilter = "Server lists|*.txt;*.csv|Text files|*.txt|CSV files|*.csv";
 
     private readonly ICyberArkApiService _cyberArkApiService;
     private readonly IManualReportImportService _manualReportImportService;
@@ -20,6 +21,7 @@ public sealed class CyberArkAuditViewModel : ObservableObject
     private readonly IFilePickerService _filePickerService;
     private readonly CyberArkErrorClassifier _errorClassifier;
     private readonly CyberArkAccountFilter _accountFilter;
+    private readonly ServerExclusionParser _serverExclusionParser;
     private readonly SettingsViewModel _settingsViewModel;
     private IReadOnlyList<CyberArkAccount> _loadedAccounts = [];
     private string _searchText = string.Empty;
@@ -27,6 +29,8 @@ public sealed class CyberArkAuditViewModel : ObservableObject
     private string _sourceDescription = "No source loaded.";
     private string _manualFilePath = string.Empty;
     private string _selectionSummary = "Load CyberArk accounts to select platforms and safes.";
+    private string _sessionExcludedServers = string.Empty;
+    private string _excludedServerSummary = "No excluded servers configured.";
     private int _loadedAccountCount;
     private bool _isAuditReadyToRun;
     private ErrorCategoryOptionViewModel? _selectedErrorCategory;
@@ -38,6 +42,7 @@ public sealed class CyberArkAuditViewModel : ObservableObject
         IFilePickerService filePickerService,
         CyberArkErrorClassifier errorClassifier,
         CyberArkAccountFilter accountFilter,
+        ServerExclusionParser serverExclusionParser,
         SettingsViewModel settingsViewModel)
     {
         _cyberArkApiService = cyberArkApiService;
@@ -46,10 +51,12 @@ public sealed class CyberArkAuditViewModel : ObservableObject
         _filePickerService = filePickerService;
         _errorClassifier = errorClassifier;
         _accountFilter = accountFilter;
+        _serverExclusionParser = serverExclusionParser;
         _settingsViewModel = settingsViewModel;
 
         SyncNowCommand = new AsyncRelayCommand(SyncNowAsync);
         ImportAccountsFileCommand = new AsyncRelayCommand(ImportAccountsFileAsync);
+        ImportExcludedServersFileCommand = new AsyncRelayCommand(ImportExcludedServersFileAsync);
         RunAuditCommand = new AsyncRelayCommand(RunAuditAsync, () => _loadedAccounts.Count > 0);
         ExportErrorSummaryCommand = new AsyncRelayCommand(ExportErrorSummaryAsync, () => ErrorSummary.Count > 0);
         SelectAllPlatformsCommand = new AsyncRelayCommand(() => SetAllSelectionsAsync(AvailablePlatforms, true));
@@ -61,7 +68,16 @@ public sealed class CyberArkAuditViewModel : ObservableObject
         MoveErrorCategoryUpCommand = new AsyncRelayCommand(() => MoveErrorCategoryAsync(-1), CanMoveErrorCategoryUp);
         MoveErrorCategoryDownCommand = new AsyncRelayCommand(() => MoveErrorCategoryAsync(1), CanMoveErrorCategoryDown);
 
+        _settingsViewModel.PropertyChanged += (_, args) =>
+        {
+            if (string.Equals(args.PropertyName, nameof(SettingsViewModel.ExcludedServers), StringComparison.Ordinal))
+            {
+                OnExcludedServersChanged();
+            }
+        };
+
         InitializeErrorCategories();
+        UpdateExcludedServerSummary();
     }
 
     public event Action<string>? LogGenerated;
@@ -83,6 +99,8 @@ public sealed class CyberArkAuditViewModel : ObservableObject
     public ICommand SyncNowCommand { get; }
 
     public ICommand ImportAccountsFileCommand { get; }
+
+    public ICommand ImportExcludedServersFileCommand { get; }
 
     public ICommand RunAuditCommand { get; }
 
@@ -138,6 +156,24 @@ public sealed class CyberArkAuditViewModel : ObservableObject
     {
         get => _selectionSummary;
         private set => SetProperty(ref _selectionSummary, value);
+    }
+
+    public string SessionExcludedServers
+    {
+        get => _sessionExcludedServers;
+        set
+        {
+            if (SetProperty(ref _sessionExcludedServers, value))
+            {
+                OnExcludedServersChanged();
+            }
+        }
+    }
+
+    public string ExcludedServerSummary
+    {
+        get => _excludedServerSummary;
+        private set => SetProperty(ref _excludedServerSummary, value);
     }
 
     public ErrorCategoryOptionViewModel? SelectedErrorCategory
@@ -234,6 +270,46 @@ public sealed class CyberArkAuditViewModel : ObservableObject
         {
             ProgressChanged?.Invoke(new OperationProgress { Message = "CyberArk sync failed.", PercentComplete = 0d });
             LogGenerated?.Invoke($"CyberArk sync failed: {exception.Message}");
+        }
+        finally
+        {
+            BusyStateChanged?.Invoke(false);
+        }
+    }
+
+    private async Task ImportExcludedServersFileAsync()
+    {
+        var filePath = _filePickerService.PickFile("Select Excluded Servers File", ServerFilterFileFilter);
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            return;
+        }
+
+        BusyStateChanged?.Invoke(true);
+
+        try
+        {
+            ProgressChanged?.Invoke(new OperationProgress { Message = "Importing excluded servers...", PercentComplete = 15d });
+            var content = await File.ReadAllTextAsync(filePath, CancellationToken.None);
+            var importedServers = _serverExclusionParser.ParseImportedContent(filePath, content);
+            var mergedServers = _serverExclusionParser.Merge(
+                _serverExclusionParser.ParseManualEntries(SessionExcludedServers),
+                importedServers);
+
+            SessionExcludedServers = string.Join(Environment.NewLine, mergedServers);
+
+            ProgressChanged?.Invoke(new OperationProgress
+            {
+                Message = $"Imported {importedServers.Count} excluded servers from {Path.GetFileName(filePath)}.",
+                PercentComplete = 100d,
+            });
+
+            LogGenerated?.Invoke($"Imported {importedServers.Count} excluded servers from '{filePath}'.");
+        }
+        catch (Exception exception)
+        {
+            ProgressChanged?.Invoke(new OperationProgress { Message = "Excluded servers import failed.", PercentComplete = 0d });
+            LogGenerated?.Invoke($"Excluded servers import failed: {exception.Message}");
         }
         finally
         {
@@ -425,7 +501,7 @@ public sealed class CyberArkAuditViewModel : ObservableObject
 
     private IReadOnlyList<CyberArkAccount> GetPreFilteredAccounts(IEnumerable<CyberArkAccount> accounts)
     {
-        return _accountFilter.Apply(accounts, _settingsViewModel.GetCyberArkFilterOptions());
+        return _accountFilter.Apply(accounts, BuildEffectiveFilterOptions());
     }
 
     private void RefreshVisibleAccountsCore()
@@ -499,12 +575,13 @@ public sealed class CyberArkAuditViewModel : ObservableObject
         var selectedPlatformCount = AvailablePlatforms.Count(option => option.IsSelected);
         var selectedSafeCount = AvailableSafes.Count(option => option.IsSelected);
         var selectedErrorCount = AvailableErrorCategories.Count(option => option.IsSelected);
+        var excludedServerCount = GetExcludedServers().Count;
 
         SelectionSummary = _loadedAccounts.Count == 0
-            ? "Load CyberArk accounts to select platforms, safes and output error categories."
+            ? $"Load CyberArk accounts to select platforms, safes and output error categories. Excluded servers configured: {excludedServerCount}."
             : _isAuditReadyToRun
-                ? $"Loaded {LoadedAccountCount} accounts. Platforms selected: {selectedPlatformCount}/{AvailablePlatforms.Count}. Safes selected: {selectedSafeCount}/{AvailableSafes.Count}. Error categories selected: {selectedErrorCount}/{AvailableErrorCategories.Count}. Run the audit to refresh the report."
-                : $"Loaded {LoadedAccountCount} accounts. Visible after CPM/rule filter and selection: {Accounts.Count}. Error rows prepared for export: {ErrorSummary.Count}.";
+                ? $"Loaded {LoadedAccountCount} accounts. Platforms selected: {selectedPlatformCount}/{AvailablePlatforms.Count}. Safes selected: {selectedSafeCount}/{AvailableSafes.Count}. Error categories selected: {selectedErrorCount}/{AvailableErrorCategories.Count}. Excluded servers applied: {excludedServerCount}. Run the audit to refresh the report."
+                : $"Loaded {LoadedAccountCount} accounts. Visible after CPM/rule filter, server exclusions and selection: {Accounts.Count}. Error rows prepared for export: {ErrorSummary.Count}.";
     }
 
     private void RaiseCommandStates()
@@ -643,5 +720,42 @@ public sealed class CyberArkAuditViewModel : ObservableObject
     private static string BuildOptionKey(ErrorCategory category, string? matchText)
     {
         return $"{category}|{matchText ?? string.Empty}";
+    }
+
+    private CyberArkFilterOptions BuildEffectiveFilterOptions()
+    {
+        var persistedOptions = _settingsViewModel.GetCyberArkFilterOptions();
+        return persistedOptions with
+        {
+            ExcludedServers = GetExcludedServers(),
+        };
+    }
+
+    private IReadOnlyCollection<string> GetExcludedServers()
+    {
+        return _serverExclusionParser.Merge(
+            _settingsViewModel.GetCyberArkFilterOptions().ExcludedServers,
+            _serverExclusionParser.ParseManualEntries(SessionExcludedServers));
+    }
+
+    private void OnExcludedServersChanged()
+    {
+        if (_loadedAccounts.Count > 0)
+        {
+            _isAuditReadyToRun = true;
+        }
+
+        UpdateExcludedServerSummary();
+        UpdateSelectionSummary();
+        RaiseCommandStates();
+    }
+
+    private void UpdateExcludedServerSummary()
+    {
+        var persistedCount = _settingsViewModel.GetCyberArkFilterOptions().ExcludedServers.Count;
+        var sessionCount = _serverExclusionParser.ParseManualEntries(SessionExcludedServers).Count;
+        var combinedCount = GetExcludedServers().Count;
+
+        ExcludedServerSummary = $"Persistent: {persistedCount}. Session: {sessionCount}. Applied total: {combinedCount}.";
     }
 }

@@ -6,6 +6,7 @@ Aplicación nativa para Windows 10/11 construida con `C#`, `.NET 8` y `WPF` para
 
 - Auditoría de cuentas CyberArk por carga manual o sincronización vía PVWA API.
 - Filtros combinados por `CPM Disabled`, plataformas y safes.
+- Exclusión de servidores por `Address`, configurable de forma persistente y también temporal desde la pantalla de auditoría mediante texto o `csv/txt`.
 - Clasificación y normalización de errores CPM con agrupación por códigos como `winRc=`, `Error code:`, `ORA-`, `HRESULT` y firma común saneada cuando no existe código.
 - Exportación local de resumen de errores a `CSV/XLSX` con formato orientado a reporting:
   - columna `Error`
@@ -63,9 +64,9 @@ dotnet test .\PrivilegedAuditSuite.Tests\PrivilegedAuditSuite.Tests.csproj --no-
 
 ## Documentación
 
-- [Arquitectura](C:\Users\Manoli\Documents\CyberArk\Creador-Informes\docs\ARCHITECTURE.md)
-- [Seguridad y configuración](C:\Users\Manoli\Documents\CyberArk\Creador-Informes\docs\SECURITY.md)
-- [Uso funcional](C:\Users\Manoli\Documents\CyberArk\Creador-Informes\docs\USAGE.md)
+- [Arquitectura](docs/ARCHITECTURE.md)
+- [Seguridad y configuración](docs/SECURITY.md)
+- [Uso funcional](docs/USAGE.md)
 
 ## Estado actual
 
@@ -83,4 +84,3 @@ Pendiente para una siguiente iteración:
 
 - escritura avanzada sobre Excel en OneDrive mediante Graph Workbook API
 - sustitución de la integración actual de Entra REST por `Microsoft.Graph` SDK si se quiere una alineación estricta con ese requisito
-

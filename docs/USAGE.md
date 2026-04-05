@@ -6,10 +6,19 @@
 
 1. `Load Accounts File` para un `CSV/XLSX` manual o `Sync From API`.
 2. Seleccionar plataformas y safes.
-3. Revisar `Errors In Final Output`.
-4. Ajustar qué errores se exportan y su orden con `Up` y `Down`.
-5. Pulsar `Run Audit`.
-6. Pulsar `Export Error Summary`.
+3. Opcionalmente añadir exclusiones temporales de servidores en `Session Excluded Servers` pegando una columna o importando un `csv/txt`.
+4. Revisar `Errors In Final Output`.
+5. Ajustar qué errores se exportan y su orden con `Up` y `Down`.
+6. Pulsar `Run Audit`.
+7. Pulsar `Export Error Summary`.
+
+### Exclusión de servidores
+
+- `Persistent Excluded Servers` en `Settings & Logs` guarda hosts excluidos en la configuración segura y aplica también a `headless`.
+- `Session Excluded Servers` en `CyberArk Audit` permite añadir una sobreescritura puntual para la sesión actual.
+- `txt`: una línea por servidor.
+- `csv`: se toma la primera columna no vacía de cada fila y se ignoran cabeceras comunes como `Server` o `Address`.
+- El filtrado compara el valor exacto de `Address` tras normalizar espacios y sin distinguir mayúsculas/minúsculas.
 
 ### Formato de salida
 
